@@ -92,7 +92,7 @@ void System::set_linear_timetype(int _n_timesteps,float _time_unit)
     time_unit = _time_unit;
     /*create table of times in trajectory*/
     create_timelist();
-    set_box();
+    init_box();
     set_timegap();
 }
 
@@ -107,7 +107,7 @@ void System::set_exponential_timetype(int _n_exponentials,int _n_exponential_ste
     time_unit = _time_unit;
     /*create table of times in trajectory*/
     create_timelist();
-    set_box();
+    init_box();
     set_timegap();
 }
 
@@ -122,11 +122,11 @@ void System::set_snapshot_timetype()
     time_unit = 1.0;
     /*create table of times in trajectory*/
     create_timelist();
-    set_box();
+    init_box();
     set_timegap();
 }
 
-void System::set_box()
+void System::init_box()
 {
   /*allocate memory for box-size info*/
   box_size = new Coordinate[n_timesteps];
@@ -291,7 +291,7 @@ void System::read_trajectory(string trajectory_type, string fileline)
   {
     if(trajectory_type=="xyz")
     {
-      //xyz_prep(file_in,fileline);
+      xyz_prep(file_in,fileline);
     }
     else if(trajectory_type=="xyz_log")
     {
@@ -334,9 +334,309 @@ void System::read_trajectory(string trajectory_type, string fileline)
 #define SPECIES_SIZE 4
 #define TYPE_SIZE 6
 
+/*------------------------Methods to read XYZ trajectories --------------------- ------*/
+
+
+void System::set_box(float xlo,float xhi, float ylo,float yhi, float zlo, float zhi)
+{
+  float L_x,L_y,L_z;
+
+  L_x = xhi-xlo;
+  L_y = yhi-ylo;
+  L_z = zhi-zlo;
+
+  for(int timeii=0;timeii<n_timesteps;timeii++)
+  {
+    box_size[timeii].set(L_x,L_y,L_z);
+    box_boundary[timeii][0].set(xlo, ylo, zlo);
+    box_boundary[timeii][1].set(xhi, yhi, zhi);
+  }
+}
+
+/*----------------------------------------------------------------------------------*/
+void System::xyz_prep(vector<string> file_in, string fileline)
+{
+  string line;
+  vector <string> args;
+  int ** natoms;						//array of number of atoms of each type in each species
+  int speciesii;						//species type index
+  int typeii, argii;
+  int atomii;							//atom type index
+  float L_x, L_y, L_z;						//temporary storage for box dimensions
+  float xlo, xhi, ylo, yhi, zlo, zhi;
+  string xyzfilename;
+  bool trajtemplate_given=0;			//does user specify a trajectory template?
+  string trajtemplate;
+  
+  args = tokenize(fileline);
+  xyzfilename = tokenize(0);
+  if(tokenize.count()>1)
+  {
+    trajtemplate_given=1;
+    trajtemplate = args[1];
+  }
+  
+  ifstream ifile(xyzfilename.c_str());
+  if (!ifile)
+  {
+	Error("XYZ Trajectory file not found.", -2);
+  }
+
+  if(trajtemplate_given){read_xyz(xyzfilename,trajtemplate);}
+  else {read_xyz(xyzfilename);}
+
+  wrapped = 1;
+  /*calculate unwrapped trajectories*/
+  cout << "\nUnwrapping trajectories.";
+  unwrap();
+
+}
+
+/*Method to read in a LAMMPS xyz file.  The file must be formatted in an ordered manner if this method is to work correctly.  In particular the method assumes that the xyz file is grouped by species, with the species appearing in the order in which they were entered by the user.  This approach could be replaced by a method to read in an enhanced xyz file that stores molecular data.*/
+
+void System::read_xyz(string xyzfilename)
+{
+  int file_atoms;			//variable to store the number of atoms listed in xyz file
+  string trash;				//create garbage string
+  int timestepii;			//index over timesteps
+  int speciesii;			//index over species
+  int moleculeii;			//index over molecules
+  int atomii;				//index over atoms within molecule
+  int type;				//type to pass to molecule
+  Coordinate coordinate;		//coordinate to pass to molecule
+  float x;				//temporary storage for x coordinate
+  float y;				//temporary storage for y coordinate
+  float z;				//temporary storage for z coordinate
+  int * n_typeii;			//array of indices to track how many of each type have been passed to particular molecule
+  int typeii;				//index over elements of above aray
+  int timetally=0;
+
+  ifstream filexyz(xyzfilename.c_str());
+  ifstream * fileobject = &filexyz;
+
+  n_typeii = new int [n_atomtypes];
+  cout << "\nReading a " << n_timesteps <<" timestep trajectory of " << n_atoms << " atoms.\n";
+
+  for(timestepii=0; timestepii<n_timesteps; timestepii++)
+  {
+    *fileobject >> file_atoms;		//read in number of atoms from file
+    if(file_atoms!=n_atoms)		//check if the number of atoms listed in file is consistent with the molecule and atom counts given by the user
+    {
+      stringstream ss;
+      ss<<"The number of atoms listed in the xyz file is inconsistent with user input: "<<file_atoms<<" != "<<n_atoms;
+      Error(ss.str(), -4);
+      //cout << "The number of atoms listed in the xyz file is inconsistent with user input: ";	//if not, give error...
+      //cout << file_atoms << " != " << n_atoms << "\n";
+      //exit(0);											//and terminate program.
+    }
+
+    *fileobject >> trash;				//read out trash line: "atoms"
+    getline(*fileobject,trash);
+
+    for(speciesii=0; speciesii<n_species; speciesii++)
+    {
+      for(moleculeii=0; moleculeii<n_molecules[speciesii]; moleculeii++)
+      {
+        for(typeii=0;typeii<n_atomtypes;typeii++)
+        {n_typeii[typeii]=0;}  //initiate type count array to zero at start of each molecule
+
+        for(atomii=0; atomii < ((molecules[speciesii][moleculeii]).atomcount());atomii++)
+        {
+	      *fileobject >> type >> x >> y >> z;
+          if(type > n_atomtypes)
+          {
+            cout << "Atom type in trajectory file out of range!\n";
+            exit(1);
+          }
+         coordinate.set(x,y,z);		//store coordinates temporarily in coordinate object
+         (molecules[speciesii][moleculeii]).set_coordinate(type-1,n_typeii[type-1],coordinate,timestepii);	//send coordinates to atom
+         n_typeii[type-1]++;		//increment count of atoms of this type
+       }
+     }
+   }
+    print_progress(++timetally, n_timesteps);
+  }
+
+    *fileobject >> trash;
+    if(trash !="")
+    {
+        cout << "\n\nWARNING: trajectory file contains more frames than were used."<<endl;cout.flush();
+    }
+
+  (*fileobject).close();
+  delete [] n_typeii;
+}
+
+
+/*Method to read in a LAMMPS xyz file.  Atoms within every molecule of each species must be ordered the same, but order of molecules is given by extra file*/
+
+void System::read_xyz(string xyzfilename, string structure_filename)
+{
+  int file_atoms;			//variable to store the number of atoms listed in xyz fileng
+  int timestepii;			//index over timesteps
+  int speciesii;			//index over species
+  int moleculeii;			//index over molecules
+  int atomii;				//index over atoms within molecule
+  Coordinate coordinate;		//coordinate to pass to molecule
+  float x;				//temporary storage for x coordinate
+  float y;				//temporary storage for y coordinate
+  float z;				//temporary storage for z coordinate
+  int * n_typeii;			//array of indices to track how many of each type have been passed to particular molecule
+  int typeii;				//index over elements of above aray
+  int timetally=0;
+  string line;
+  vector <string> args;
+  int n_moleculeblocks=0;
+  int * moleculeblock_type;
+  int * moleculeblock_size;
+  int moleculeblockii, argii;
+  int ** atomorder;			//store order of atoms within molecules of each species
+  int * moleculecount;
+
+  moleculecount = new int [n_species];
+  for(speciesii=0;speciesii<n_species;speciesii++)
+  {
+    moleculecount[speciesii]=0;
+  }
+
+  ifstream filexyz(xyzfilename.c_str());
+  ifstream structurefile(structure_filename.c_str());
+
+  atomorder = new int * [n_species];
+  for(speciesii=0;speciesii<n_species;speciesii++)
+  {
+    atomorder[speciesii] = new int [molecules[speciesii][0].atomcount()];
+  }
+
+
+  n_typeii = new int [n_atomtypes];
+  cout << "\nReading a " << n_timesteps <<" timestep trajectory of " << n_atoms << " atoms.\n";
+
+
+
+  /*read in file containing information on trajectory file structure*/
+  while(!structurefile.eof())
+  {
+    getline(structurefile, line);
+//    line=Control::replace_constants(line);
+    n_moleculeblocks++;
+  }
+  structurefile.seekg(0,ios::beg);	//go back to beginning of file
+  structurefile.clear();
+  moleculeblock_type = new int [n_moleculeblocks];
+  moleculeblock_size = new int [n_moleculeblocks];
+
+  moleculeblockii=0;
+  while(!structurefile.eof())
+  {
+    getline(structurefile, line);
+//    line=Control::replace_constants(line);
+    args = tokenize(line);
+    if(tokenize.count()==0){continue;}
+    else if(tokenize.count()!=2)
+    {
+      Error("Incorrect number of arguments in structure file.  Each line should consist of 2 arguments: a species and a number of lines.", 0);
+    }
+    else
+    {
+      moleculeblock_type[moleculeblockii] = show_species_index(args[0]);
+      if(moleculeblock_type[moleculeblockii]==-1){Error( string("Species ")+args[0]+" not found.",0);}
+      moleculeblock_size[moleculeblockii] = atoi(args[1].c_str());
+      moleculeblockii++;
+    }
+  }
+
+  /*determine atom order template for each species*/
+  getline(filexyz, line);
+  args = tokenize(line);
+  file_atoms = atoi(args[0].c_str());
+  if(file_atoms!=n_atoms)		//check if the number of atoms listed in file is consistent with the molecule and atom counts given by the user
+  {
+      stringstream ss;
+      ss<<"The number of atoms listed in the xyz file is inconsistent with user input: "<<file_atoms<<" != "<<n_atoms;
+      Error(ss.str(), -4);
+//      cout << "The number of atoms listed in the xyz file is inconsistent with user input: ";	//if not, give error...
+//      cout << file_atoms << " != " << n_atoms << "\n";
+//      exit(0);											//and terminate program.
+  }
+
+  getline(filexyz, line); 		//read out garbage header line
+  for(moleculeblockii=0;moleculeblockii<n_moleculeblocks;moleculeblockii++)
+  {
+    for(moleculeii=0;moleculeii<moleculeblock_size[moleculeblockii];moleculeii++)
+    {
+      line = "";
+      for(argii=0;argii<ARGMAX;argii++){args[argii]="";}
+      for(atomii=0;atomii<molecules[moleculeblock_type[moleculeblockii]][0].atomcount();atomii++)
+      {
+        getline(filexyz, line);
+        if(moleculeii==0)
+        {
+          args = tokenize(line);
+          atomorder[moleculeblock_type[moleculeblockii]][atomii]=show_atomtype_index(args[0]);
+        }
+      }
+    }
+  }
+
+
+  /*do data readout based on above template*/
+  filexyz.seekg(0,ios::beg);		//go back to beginning of file and prepare for data readout
+  filexyz.clear();
+  cout << filexyz.eof()<<"\n";
+
+  for(timestepii=0; timestepii<n_timesteps; timestepii++)
+  {
+    for(speciesii=0;speciesii<n_species;speciesii++)
+    {
+      moleculecount[speciesii]=0;
+    }
+    /*parse section header*/
+
+    line = "";
+    getline(filexyz, line);
+    args = tokenize(line);
+    file_atoms = atoi(args[0].c_str());
+    if(file_atoms!=n_atoms)		//check if the number of atoms listed in file is consistent with the molecule and atom counts given by the user
+    {
+      stringstream ss;
+      ss<<"The number of atoms listed in the xyz file is inconsistent with user input: "<<file_atoms<<" != "<<n_atoms;
+      Error(ss.str(), -4);
+      //cout << "The number of atoms listed in the xyz file is inconsistent with user input: ";	//if not, give error...
+      //cout << file_atoms << " != " << n_atoms << "\n";
+      //exit(0);											//and terminate program.
+    }
+    getline(filexyz, line); 								//read out trash line: "atoms"
+
+    for(moleculeblockii=0;moleculeblockii<n_moleculeblocks;moleculeblockii++)
+    {
+      for(moleculeii=0;moleculeii<moleculeblock_size[moleculeblockii];moleculeii++)
+      {
+        for(typeii=0;typeii<n_atomtypes;typeii++) {n_typeii[typeii]=0;}  //initiate type count array to zero at start of each molecule
+        line = "";
+        for(atomii=0;atomii<molecules[moleculeblock_type[moleculeblockii]][0].atomcount();atomii++)
+        {
+          getline(filexyz, line);
+          args = tokenize(line);
+          x = atof(args[1].c_str());
+          y = atof(args[2].c_str());
+          z = atof(args[3].c_str());
+          coordinate.set(x,y,z);		//store coordinates temporarily in coordinate object
+          (molecules[moleculeblock_type[moleculeblockii]][moleculecount[moleculeblock_type[moleculeblockii]]]).set_coordinate(atomorder[moleculeblock_type[moleculeblockii]][atomii],n_typeii[atomorder[moleculeblock_type[moleculeblockii]][atomii]],coordinate,timestepii);	//send coordinates to atom
+          n_typeii[atomorder[moleculeblock_type[moleculeblockii]][atomii]]++;		//increment count of atoms of this type
+        }
+        moleculecount[moleculeblock_type[moleculeblockii]]++;
+      }
+    }
+    print_progress(++timetally, n_timesteps);
+  }
+
+  filexyz.close();
+  delete [] n_typeii;
+}
+
+
 /*------------------------Methods to read custom LAMMPS trajectories --------------------- ------*/
-
-
 
 void System::custom_prep(vector<string> file_in, string fileline)
 {
@@ -463,7 +763,7 @@ void System::read_custom(string xyzfilename)
     if(file_atoms!=n_atoms)		//check if the number of atoms listed in file is consistent with the molecule and atom counts given by the user
     {
       stringstream ss;
-      ss<<"The number of atoms listed in the xyz file is inconsistent with user input: "<<file_atoms<<" != "<<n_atoms;
+      ss<<"The number of atoms listed in the custom file is inconsistent with user input: "<<file_atoms<<" != "<<n_atoms;
       Error(ss.str(), -4);
       //cout << "The number of atoms listed in the xyz file is inconsistent with user input: ";	//if not, give error...
       //cout << file_atoms << " != " << n_atoms << "\n";
@@ -3762,7 +4062,7 @@ void export_System(py::module& m)
     .def("set_snapshot_timetype", &System::set_snapshot_timetype)
     .def("set_timegap", &System::set_timegap)
     .def("set_density", &System::set_density)
-    .def("set_box", &System::set_box)
+    .def("set_box", &System::set_box,py::arg("xlo"),py::arg("xhi"),py::arg("ylo"),py::arg("yhi"),py::arg("zlo"),py::arg("zhi"))
     .def("set_molecule", &System::set_molecule)
     .def("add_species", &System::add_species,py::arg("name"),py::arg("number"),py::arg("atoms"))
     .def("read_species", &System::read_species)

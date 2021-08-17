@@ -132,7 +132,8 @@ class PYBIND11_EXPORT System
 
     void set_timegap();
     void set_density();
-    void set_box();
+    void init_box();
+    void set_box(float,float,float,float,float,float);
     void set_molecule();
     void add_species(string species_name, int n_molecules,vector<int> atomtypes);
     void read_species();
@@ -140,6 +141,8 @@ class PYBIND11_EXPORT System
     vector<string> atomtype_list;
 
     void read_trajectory(std::string trajectory_type, std::string fileline);
+
+    //void read_trajectory(std::string trajectory_type, std::string fileline);
 
     /*------Methods to handle multibodies and multibody_sets--------*/
     Multibody_Set* create_multibody_set(std::string setname, std::string args);

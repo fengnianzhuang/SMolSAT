@@ -262,6 +262,68 @@ void Trajectories::delete_multibodies(string multibody_set_name)
    analyte->delete_multibody_set(multibody_set_name);
 }
 
+void Trajectories::add_trajectorylist_bins(Trajectory_List_Bins * traj_list_bins, string listname)
+{
+  /** Adds new Binned Trajectory List object to stored values
+  * @author Mark Mackura
+  * @date 4/11/2012
+  **/
+  int trajnum;
+
+  trajnum = find_trajectorylist_bins(listname);
+  if(trajnum==-1)
+  {
+    trajnum = n_trajectory_list_bins;
+    binned_trajectories.push_back(traj_list_bins);
+    n_trajectory_list_bins++;
+  }
+  else
+  {
+    binned_trajectories[trajnum] = traj_list_bins;
+  }
+  trajectory_list_bin_names[trajnum] = listname;
+}
+
+
+int Trajectories::find_trajectorylist_bins(string listname)
+{
+  /** Finds trajectory_list_bins object by custom name
+  * @author Mark Mackura
+  * @date 4/11/2012
+  **/
+    int listii;
+    for(listii=0;listii<n_trajectory_list_bins;listii++)
+    {
+      if(listname==trajectory_list_bin_names[listii])
+      {
+	return listii;
+      }
+    }
+    return -1;
+}
+
+
+void Trajectories::remove_bin_list(string listname)
+{
+  cout << "\nRemoving binned trajectory list " << listname << endl;
+
+  int listii = find_trajectorylist_bins(listname);
+  if (listii<0)
+  {
+      cout << "\nBinned list " << listname << " not found! Cannot remove it!" << endl;
+  }
+  else
+  {
+      delete binned_trajectories.at(listii);
+      binned_trajectories.erase(binned_trajectories.begin() + listii);
+      for (int i=listii; i<n_trajectory_list_bins; i++)
+      {
+          trajectory_list_bin_names[i]=trajectory_list_bin_names[i+1];
+      }
+      n_trajectory_list_bins--;
+  }
+}
+
 void Trajectories::create_list(string listname, string args)
 {
     Static_Trajectory_List* trajectory;

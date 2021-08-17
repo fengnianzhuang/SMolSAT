@@ -8,6 +8,7 @@
 #include "multibody_list.h"
 #include "vector_map.h"
 #include "trajectory_list.h"
+#include "trajectory_list_bins.h"
 #include "multibody_list.h"
 #include "static_trajectory_list.h"
 #include "value_list.h"
@@ -17,13 +18,17 @@
 #ifndef CREATE_LIST
 #define CREATE_LIST
 
+#define LISTSIZE 1000
+
+using namespace std;
+
 class PYBIND11_EXPORT Trajectories
 {   
     private:
     //list of particle lists
     int n_gaussian_comparisons = 0;
     int vhs_defined = 0;
-    int n_trajectory_list_bins = 0;
+    int n_trajectory_list_bins = 0; //number of binned trajectory list objects stored
     std::shared_ptr<System> analyte;
 
     public:
@@ -51,7 +56,16 @@ class PYBIND11_EXPORT Trajectories
     void combine_multibody_lists(string newlistname, vector<string> listnames);
     void delete_multibodies(string listname);
 
+    /*Members to store and access trajectory_bin objects*/
+    void add_trajectorylist_bins(Trajectory_List_Bins *,string);
+    int find_trajectorylist_bins(string);
+    string trajectory_list_bin_names[LISTSIZE];				//custom name of binned trajectory list
+    vector<Trajectory_List_Bins *> binned_trajectories;		//array of binned trajectory list objects			
+    void remove_bin_list(string listname);                  // Removes a bin list from memory
+
     void create_list(string listname, string args);
+    void create_bin_list(string listname, vector<int> n_bins);
+    void create_region_bin_list(string listname, vector<int> n_bins, vector<float> x, vector<float> y, vector<float> z);
     void create_multibodies(string listname, string trajectory_type_name, string centertypename, string args);
 };
 
