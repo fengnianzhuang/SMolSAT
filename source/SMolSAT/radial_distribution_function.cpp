@@ -26,11 +26,13 @@ Radial_Distribution_Function::Radial_Distribution_Function():Analysis_Onetime()
 
 
 
-Radial_Distribution_Function::Radial_Distribution_Function(std::shared_ptr<System> sys, int nbins, int timescheme, float maxdistance, bool is_inter)
+Radial_Distribution_Function::Radial_Distribution_Function(std::shared_ptr<System> sys, int nbins, int timescheme, float maxdistance, bool isinter)
 {
   int timeii, binii;
   float minboxsize;
-  
+
+  is_inter=isinter;
+
   system=sys;
   n_bins=nbins;
   minboxsize=(system->min_box_dimensions()).min();

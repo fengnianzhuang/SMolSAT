@@ -27,8 +27,6 @@ void Analysis_Onetime::analyze(Trajectory_List * t_list)
   int timeii;
   
   trajectory_list=t_list;
-  
-  cout<<"test analysis_onetime";
 
   preprocess();
   
