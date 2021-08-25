@@ -44,7 +44,7 @@ class PYBIND11_EXPORT Trajectory
     Trajectory(int,Coordinate *);	//constructor to instantiate coordinate array with full definition
     //Trajectory(const Multibody &);	//copy constructor
     //Trajectory operator =(const Multibody&);
-   ~Trajectory();			//destructor
+    ~Trajectory();			//destructor
     
     virtual void set(int,int,float m=1);		//change number of timesteps and reallocate memory accordingly
     virtual void set(int,int,Coordinate*,int);	//method to fully define object, including coordinate list

@@ -33,6 +33,7 @@ class PYBIND11_EXPORT Atom_Trajectory: public Trajectory
         
     int show_atomID()const{return atomID;};
     void set_atomID(int ID){atomID = ID;};
+    int show_moleculeID()const{return moleculeID;};
     
     void set_moleculeID(int ID){moleculeID=ID;};		//set unique ID of molecule within which atome resides
 };

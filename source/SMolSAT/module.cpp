@@ -27,6 +27,8 @@
 #include "space-time_correlation_function.h"
 #include "van_hove_self.h"
 #include "van_hove_distinct.h"
+#include "mean_square_distance.h"
+#include "mean_distance.h"
 
 #include "../extern/pybind11/include/pybind11/pybind11.h"
 #include "../extern/pybind11/include/pybind11/stl_bind.h"
@@ -63,4 +65,6 @@ PYBIND11_MODULE(_SMolSAT, m)
     export_Space_Time_Correlation_Function(m);
     export_Van_Hove_Self(m);
     export_Van_Hove_Distinct(m);
+    export_MeanSquared_Distance(m);
+    export_Mean_Distance(m);
 }

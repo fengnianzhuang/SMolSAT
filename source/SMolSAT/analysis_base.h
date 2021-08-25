@@ -54,7 +54,8 @@ enum Analysis_Type
   radial_distribution_function,
   displacement_list,
   distance_neighbor_list,
-  neighbor_decorrelation_function
+  neighbor_decorrelation_function,
+  mean_square_distance
 };
 
 class Trajectory_List;

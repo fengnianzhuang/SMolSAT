@@ -19,3 +19,5 @@ from .radial_distribution_function import *
 from .non_gaussian_parameter import *
 from .incoherent_scattering_function import *
 from .van_hove_self import *
+from .mean_square_distance import *
+from .mean_distance import *
