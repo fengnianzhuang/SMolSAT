@@ -18,7 +18,7 @@ class mean_distance:
                         trajs=None,
                         listname=None,
                         out=None,
-                        in_mole=True,
+                        in_mole=False,
                         timescheme=0):
         self.system=system
         self.trajs=trajs
