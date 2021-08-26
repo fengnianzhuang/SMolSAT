@@ -29,9 +29,6 @@ class Trajectory_List
 
     mutable Boolean_List * included;	//stores boolean list specifying included trajectories at each time;
 
-
-
-
     int convert_time(int timeii)const{return time_conversion[timeii];};	//convert requested time (Where the index is the time index from the system object) to internal time index
 
 

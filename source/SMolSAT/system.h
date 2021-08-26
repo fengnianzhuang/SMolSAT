@@ -200,6 +200,7 @@ class PYBIND11_EXPORT System
     float show_exp_base()const{return exp_base;};			//return exponential base of time scheme
     int show_n_exponential_steps()const{return n_exponential_steps;};	//return number of exponential steps per block in time scheme
     float * displacement_times() const;	//calculate array of times corresponding to displacement timesteps
+    float * show_timelist() const{return timelist;};	//calculate array of times corresponding to timesteps
     float displacement_times(int) const;	//calculate array of times corresponding to displacement timesteps
     float show_time(int tii)const{return timelist[tii];};	//return time spacing corresponding to  time spacing index
     void show_times(int ntimes, int * timeindices, float * times)const;	//return array of times given array of time indices

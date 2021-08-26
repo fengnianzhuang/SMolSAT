@@ -21,3 +21,4 @@ from .incoherent_scattering_function import *
 from .van_hove_self import *
 from .mean_square_distance import *
 from .mean_distance import *
+from .radius_gyration import *

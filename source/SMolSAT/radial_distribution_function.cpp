@@ -222,7 +222,7 @@ void Radial_Distribution_Function::listkernel(Trajectory* current_trajectory, in
 void Radial_Distribution_Function::listkernel2(Trajectory* traj1, Trajectory* traj2,int timegapii,int thisii, int nextii)
 {
   float distance;
-  cout<<traj1->show_moleculeID()<<" "<<traj2->show_moleculeID()<<endl;
+  //cout<<traj1->show_moleculeID()<<" "<<traj2->show_moleculeID()<<endl;
   if(is_inter)
   {
   if(traj1->show_moleculeID()!=traj2->show_moleculeID())

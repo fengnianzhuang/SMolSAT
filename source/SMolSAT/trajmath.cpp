@@ -136,12 +136,12 @@ void gyration_tensor(const Coordinate * coordinates, int n_coordinates, sixfloat
   {
     rel_coord = coordinates[coordinateii] - com;	//subtract out the center of mass
     
-    gyration_tensor[0]+=rel_coord.show_x()*rel_coord.show_x();
-    gyration_tensor[1]+=rel_coord.show_x()*rel_coord.show_y();
-    gyration_tensor[2]+=rel_coord.show_x()*rel_coord.show_z();
-    gyration_tensor[3]+=rel_coord.show_y()*rel_coord.show_y();
-    gyration_tensor[4]+=rel_coord.show_y()*rel_coord.show_z();
-    gyration_tensor[5]+=rel_coord.show_z()*rel_coord.show_z();
+    gyration_tensor[0]+=rel_coord.show_x()*rel_coord.show_x(); // xx
+    gyration_tensor[1]+=rel_coord.show_x()*rel_coord.show_y(); // xy
+    gyration_tensor[2]+=rel_coord.show_x()*rel_coord.show_z(); // xz
+    gyration_tensor[3]+=rel_coord.show_y()*rel_coord.show_y(); // yy
+    gyration_tensor[4]+=rel_coord.show_y()*rel_coord.show_z(); // yz
+    gyration_tensor[5]+=rel_coord.show_z()*rel_coord.show_z(); // zz
   }
   
   //normalize gyration tensor by number of coordinates

@@ -45,7 +45,7 @@ void RgTensor_Stats::analyze(Trajectory_List* trajlist)
   int timeii, trajii;
   trajectory_list=trajlist;
   n_trajectories = trajectory_list->show_n_trajectories(0);
-  
+
   single_eigenvalues = new threefloat * [n_times];
   single_relative_asphericity = new float * [n_times];
   single_gyration_radius = new float * [n_times+1];

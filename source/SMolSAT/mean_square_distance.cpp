@@ -10,7 +10,7 @@
 using namespace std;
 namespace py=pybind11;
 
-MeanSquared_Distance::MeanSquared_Distance():Analysis_Onetime()
+MeanSquared_Distance::MeanSquared_Distance():Analysis_Base()
 {
   max_distance=0;
   n_bins=0;
@@ -26,7 +26,7 @@ MeanSquared_Distance::MeanSquared_Distance():Analysis_Onetime()
 
 
 
-MeanSquared_Distance::MeanSquared_Distance(std::shared_ptr<System> sys,int timescheme, bool inmole)
+MeanSquared_Distance::MeanSquared_Distance(std::shared_ptr<System> sys, bool inmole)
 {
   int timeii, binii;
   float minboxsize;
@@ -34,8 +34,8 @@ MeanSquared_Distance::MeanSquared_Distance(std::shared_ptr<System> sys,int times
   system=sys;
   in_mole=inmole;
   
-  time_scheme = timescheme;
-  n_times=determine_n_times();
+  
+  n_times = system->show_n_timegaps();
   
   time_m_sqr_dist= new float [n_times];
   weighting = new int [n_times];
@@ -53,13 +53,12 @@ MeanSquared_Distance::MeanSquared_Distance(std::shared_ptr<System> sys,int times
 }
 
 
-MeanSquared_Distance::MeanSquared_Distance(const MeanSquared_Distance & copy):Analysis_Onetime(copy)
+MeanSquared_Distance::MeanSquared_Distance(const MeanSquared_Distance & copy):Analysis_Base(copy)
 {
   int timeii, binii;
   
   system=copy.system;
   
-  time_scheme = copy.time_scheme;
   n_times=copy.n_times;
   
   time_m_sqr_dist= new float [n_times];
@@ -77,81 +76,22 @@ MeanSquared_Distance::MeanSquared_Distance(const MeanSquared_Distance & copy):An
   }
 }
 
-MeanSquared_Distance MeanSquared_Distance::operator=(const MeanSquared_Distance & copy)
+void MeanSquared_Distance::analyze(Trajectory_List* trajlist1, Trajectory_List* trajlist2)
 {
-  int timeii, binii;
-  
-  if(this!=&copy)
-  {
-  
-  delete [] n_atoms_i;
-  delete [] n_atoms_j;
-
-  delete [] time_m_sqr_dist;
-  delete [] weighting;
-  system=copy.system;
-  
-  time_scheme = copy.time_scheme;
-  n_times=copy.n_times;
-  
-  time_m_sqr_dist= new float [n_times];
-  weighting = new int [n_times];
-  n_atoms_i=new int [n_times];
-  n_atoms_j = new int [n_times];
-  
+  //n_atoms_i[timeii]=trajectory_list->show_n_trajectories(0);
+  //n_atoms_j[timeii]=trajectory_list2->show_n_trajectories(0);
+  int timeii;
+  trajectory_list=trajlist1;
+  trajectory_list2=trajlist2;
   for(timeii=0;timeii<n_times;timeii++)
   {
-    time_m_sqr_dist[timeii]=copy.time_m_sqr_dist[timeii];
-    weighting[timeii]=copy.weighting[timeii];
-    n_atoms_i[timeii]=copy.n_atoms_i[timeii];
-    n_atoms_j[timeii]=copy.n_atoms_j[timeii];
+    trajectory_list->listloop(this,0, timeii, 0);
   }
-  }
-  return *this;
+  postprocess_list();
 }
-
-void MeanSquared_Distance::set(std::shared_ptr<System> sys, int timescheme)
-{
-  int timeii, binii;
-  float minboxsize;
-  
-  delete [] n_atoms_i;
-  delete [] n_atoms_j;
-
-  delete [] time_m_sqr_dist;
-  delete [] weighting;
-  system=sys;
-  
-  
-  time_scheme = timescheme;
-  n_times=determine_n_times();
-  
-  time_m_sqr_dist= new float [n_times];
-  weighting = new int [n_times];
-  n_atoms_i=new int [n_times];
-  n_atoms_j = new int [n_times];
-  
-  for(timeii=0;timeii<n_times;timeii++)
-  {
-    time_m_sqr_dist[timeii]=0;
-    weighting[timeii]=0;
-    n_atoms_i[timeii]=0;
-    n_atoms_j[timeii]=0;
-    
-  }
-}
-
-
-void MeanSquared_Distance::timekernel2(int timeii)
-{
-   n_atoms_i[timeii]=trajectory_list->show_n_trajectories(system_time(timeii));
-   n_atoms_j[timeii]=trajectory_list2->show_n_trajectories(system_time(timeii));
-   trajectory_list->listloop(this,0, timeii, 0);
-}
-
 
 void MeanSquared_Distance::listkernel(Trajectory* current_trajectory, int timegapii, int thisii, int nextii)
-{
+{ 
   trajectory_list2->listloop2(this, current_trajectory, 0, thisii, 0);
 }
 
@@ -170,7 +110,6 @@ void MeanSquared_Distance::listkernel2(Trajectory* traj1, Trajectory* traj2,int 
     time_m_sqr_dist[thisii]+=distance;
     weighting[thisii]+=1;
     }
-    //cout<<traj1->show_moleculeID()<<" "<<traj2->show_moleculeID()<<" "<<distance<<endl;
     }
   }else{
     if(traj1!=traj2)
@@ -192,7 +131,7 @@ void MeanSquared_Distance::listkernel2(Trajectory* traj1, Trajectory* traj2,int 
     }
  }
  
- void MeanSquared_Distance::write(string filename)const
+ void MeanSquared_Distance::write(string filename)
  {
   int timeii;
   float * times;
@@ -209,17 +148,16 @@ void MeanSquared_Distance::listkernel2(Trajectory* traj1, Trajectory* traj2,int 
   {
     output << times[timeii]<<"\t"<<time_m_sqr_dist[timeii]<<"\n";
   }
-  output << "\n";
 
   output.close();
  }
  
  
-  void MeanSquared_Distance::write(ofstream& output)const
+  void MeanSquared_Distance::write(ofstream& output)
  {
   int timeii;
   float * times;
-  cout << "\nWriting rdf to file.";
+  cout << "\nWriting to file.";
 
   /*Write first row - list of bin numbers*/
   output << "Mean squared distance data created by SMolDAT v." << VERSION << "\n";
@@ -230,40 +168,28 @@ void MeanSquared_Distance::listkernel2(Trajectory* traj1, Trajectory* traj2,int 
   {
     output << times[timeii]<<"\t"<<time_m_sqr_dist[timeii]<<"\n";
   }
-  output << "\n";
 
  }
 
-void MeanSquared_Distance::run(Trajectories cl,string listname)
+void MeanSquared_Distance::run(Trajectories cl,string listname, string listname2)
 {
   
 
   cout << "\nCalculating mean squared distance.\n";cout.flush();
   start = time(NULL);
-  analyze(cl.trajectories[listname]);
+  analyze(cl.trajectories[listname],cl.trajectories[listname2]);
   finish = time(NULL);
   cout << "\nCalculated mean squared distance in " << finish-start<<" seconds.\n";
 
 }
 
-void MeanSquared_Distance::run(Trajectories cl,string listname1,string listname2)
-{
-  cout << "\nCalculating mean squared distance.\n";cout.flush();
-  start = time(NULL);
-  analyze(cl.find_trajectorylist(listname1),cl.find_trajectorylist(listname2));
-  finish = time(NULL);
-  cout << "\nCalculated mean squared distance in " << finish-start<<" seconds.\n";
-
-}
-
- void export_MeanSquared_Distance(py::module& m)
-    {
-    py::class_<MeanSquared_Distance, std::shared_ptr<MeanSquared_Distance> >(m,"MeanSquared_Distance",py::base<Analysis_Base>())
-    .def(py::init< std::shared_ptr<System>, int,bool>())
-    //.def("analyze", static_cast<void (Mean_Square_Displacement::*)(Trajectory_List* )> (&Mean_Square_Displacement::analyze))
-    .def("run",static_cast<void (MeanSquared_Distance::*)(Trajectories, string )> (&MeanSquared_Distance::run))
-    .def("run",static_cast<void (MeanSquared_Distance::*)(Trajectories, string, string )> (&MeanSquared_Distance::run))
-    .def("write", static_cast<void (MeanSquared_Distance::*)(string )const> (&MeanSquared_Distance::write))
-    .def("write", static_cast<void (MeanSquared_Distance::*)(ofstream& )const> (&MeanSquared_Distance::write))
-    ;
-    }
+void export_MeanSquared_Distance(py::module& m)
+  {
+  py::class_<MeanSquared_Distance, std::shared_ptr<MeanSquared_Distance> >(m,"MeanSquared_Distance",py::base<Analysis_Base>())
+  .def(py::init< std::shared_ptr<System>, bool>())
+  //.def("analyze", static_cast<void (Mean_Square_Displacement::*)(Trajectory_List* )> (&Mean_Square_Displacement::analyze))
+  .def("run",static_cast<void (MeanSquared_Distance::*)(Trajectories, string, string )> (&MeanSquared_Distance::run))
+  .def("write", static_cast<void (MeanSquared_Distance::*)(string )> (&MeanSquared_Distance::write))
+  .def("write", static_cast<void (MeanSquared_Distance::*)(ofstream& )> (&MeanSquared_Distance::write))
+  ;
+  }

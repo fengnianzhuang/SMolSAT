@@ -37,9 +37,6 @@ class Bond_Autocorrelation_Function: public Multibody_Analysis
     
     float legendre_1(float val)const;
     float legendre_2(float val)const;
-
-
-    
     
   public:
     Bond_Autocorrelation_Function();			//default constructor

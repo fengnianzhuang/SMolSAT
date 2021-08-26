@@ -45,7 +45,7 @@ void Analysis_Onetime::analyze(Trajectory_List * t_list)
   {
     for (timeii=time_scheme; timeii<system->show_n_exponentials();timeii+=system->show_n_exponential_steps())
     {
-      timekernel(timeii);
+      timekernel2(timeii);
     }
   }
   
@@ -112,6 +112,27 @@ int Analysis_Onetime::determine_n_times()
   }
   
   return timecount;
+}
+
+float * Analysis_Onetime::determine_times()
+{
+  float * times;
+  int n_times=determine_n_times();
+  times=new float [n_times];
+  int timeii;
+  if(time_scheme==-1)
+  {
+    times = system->show_timelist();
+  }
+  else
+  {
+    //cout<<(1*system->show_n_exponential_steps()+time_scheme)*system->show_time_unit()<<endl;
+    for (timeii=time_scheme; timeii<system->show_n_exponentials();timeii+=system->show_n_exponential_steps())
+    {
+      times[timeii]=system->show_time(timeii*system->show_n_exponential_steps()+time_scheme);
+    }
+  }
+  return times;
 }
 
 

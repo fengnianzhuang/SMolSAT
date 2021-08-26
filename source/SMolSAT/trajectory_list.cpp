@@ -179,7 +179,6 @@ void Trajectory_List::listloop(Analysis_Base* analysis, int time)
 {
 	int current_time;
 	current_time=convert_time(time);
-	#pragma omp parallel for schedule(dynamic) if(analysis->isThreadSafe()) // This is needed to make Structure Factor parallel 
 	for(int trajectoryii=0;trajectoryii<n_trajectories[current_time];trajectoryii++)
 	{
 		analysis->listkernel(trajectories[current_time][trajectoryii]);

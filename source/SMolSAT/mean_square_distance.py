@@ -16,18 +16,20 @@ import mpltex
 class mean_squared_distance:
     def __init__(self,  system=None,
                         trajs=None,
-                        listname=None,
+                        listname1=None,
+                        listname2=None,
                         out=None,
                         in_mole=False,
                         timescheme=0):
         self.system=system
         self.trajs=trajs
-        self.listname=listname
+        self.listname1=listname1
+        self.listname2=listname2
         self.out=out
         self.in_mole=in_mole
         self.timescheme=timescheme
-        self.analysis=MeanSquared_Distance(system,timescheme,in_mole)
-        self.analysis.run(trajs,listname)
+        self.analysis=MeanSquared_Distance(system,in_mole)
+        self.analysis.run(trajs,listname1,listname2)
         self.analysis.write(out)
         self.read()
 

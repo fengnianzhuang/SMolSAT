@@ -18,6 +18,7 @@ class Analysis_Onetime: public Analysis_Base
     virtual void timekernel (int timeii){cout<<"Error: Trajectory list targets with one list not implemented for this analysis method.\n";}; //analysis method for when two trajectory lists are needed;	//method that is looped over by analyze with single trajectory list
     virtual void timekernel2 (int timeii){cout<<"Error: Trajectory list targets with two lists not implemented for this analysis method.\n";}; //analysis method for when two trajectory lists are needed;	//method that is looped over by analyze with two trajectory lists
     int determine_n_times();
+    float * determine_times();
   public:
     
     Analysis_Onetime();

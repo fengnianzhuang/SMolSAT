@@ -265,7 +265,7 @@ void Multibody::gyr_tensor(int timeii, sixfloat* g_tensor)
     for(trajii=0;trajii<n_trajectories;trajii++)
     {
         //coordinates[trajii]=trajectories[trajii]->show_unwrapped(timeii);
-	coordinates[trajii]=consistent_position(trajii,timeii);
+	  coordinates[trajii]=consistent_position(trajii,timeii);
     }
 
     gyration_tensor(coordinates,  n_trajectories, g_tensor);

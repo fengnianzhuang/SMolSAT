@@ -11,13 +11,13 @@
 
 using namespace std;
 
-class Mean_Distance: public Analysis_Onetime
+class Mean_Distance: public Analysis_Base
 {
     float max_distance;
     int n_bins;
     float bin_size;
     int n_times;
-    float * time_m_dist;
+    float * time_m_sqr_dist;
     int * weighting;
     int * n_atoms_i;
     int * n_atoms_j;
@@ -26,30 +26,20 @@ class Mean_Distance: public Analysis_Onetime
   public:
     Mean_Distance();			//default constructor    
     Mean_Distance(const Mean_Distance &);		//copy constructor
-    Mean_Distance(std::shared_ptr<System> sys, int timescheme, bool in_mole=0);
-    
-    Mean_Distance operator = (const Mean_Distance &);	//assignment
-    
-    //Mean_Distance operator+ (const Mean_Distance &);
-    
-    void set(std::shared_ptr<System> sys, int timescheme);
+    Mean_Distance(std::shared_ptr<System> sys, bool in_mole=0);
     
     Analysis_Type what_are_you(){Analysis_Type type = mean_square_distance; return type;};		//virtual method to report the type of analysis
-    
-    void preprocess(){trajectory_list2=trajectory_list;};
-    void timekernel(int timeii){timekernel2(timeii);};
-    void timekernel2(int timeii);
-    void listkernel(Trajectory *, int, int, int);
-    void listkernel2(Trajectory *, Trajectory *, int, int, int);
+
+    void analyze (Trajectory_List*, Trajectory_List*);
+
+    void listkernel(Trajectory* , int timegapii, int thisii, int nextii);
+    void listkernel2(Trajectory* , Trajectory* ,int timegapii,int thisii, int nextii);
+
     void postprocess_list();
-    void bin(int, float);
     
-    void write(string)const;
-    void write(ofstream& output)const;
+    void write(string);
+    void write(ofstream& output);
     
-    void structure_factor(string,int);
-    
-    void run(Trajectories trjs,string listname);
     void run(Trajectories trjs,string listname1,string listname2);
     
 //	bool isThreadSafe(){return true;};
