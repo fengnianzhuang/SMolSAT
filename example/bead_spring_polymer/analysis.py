@@ -44,8 +44,8 @@ strfac=SMolSAT.structure_factor(system=ss,plane="xyz",max_length_scale=0,timesch
 # chain end-to-end distance
 list_.create_list(name="head_atom", args="atom_species polymer 1 0")
 list_.create_list(name="end_atom", args="atom_species polymer 1 19")
-mean_sqrd_dist=SMolSAT.mean_squared_distance(system=ss,trajs=list_,listname1="head_atom",listname2="end_atom",out="end2end2.dat",in_mole=True)
-mean_dist=SMolSAT.mean_distance(system=ss,trajs=list_,listname1="head_atom",listname2="end_atom",out="end2end.dat",in_mole=True)
+end2end_distance2=SMolSAT.mean_squared_distance(system=ss,trajs=list_,listname1="head_atom",listname2="end_atom",out="end2end2.dat",in_mole=True)
+end2end_distance=SMolSAT.mean_distance(system=ss,trajs=list_,listname1="head_atom",listname2="end_atom",out="end2end.dat",in_mole=True)
 
 # mean square displacement of segments
 msd=SMolSAT.msd(system=ss,trajs=list_,listname="all",out="msd_all.dat")
