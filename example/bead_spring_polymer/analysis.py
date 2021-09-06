@@ -36,7 +36,7 @@ rdf=SMolSAT.rdf(system=ss,nbins=500,max_length_scale=10,timescheme=0,trajs=list_
 
 # radius of gyration
 list_.create_multibodies(name="chains",trj_list_name="chain",center_type="centroid", args="all_molecule")
-rg=SMolSAT.rg2(system=ss,trajs=list_,listname="chains",out="rg.dat")
+rg=SMolSAT.rg2(system=ss,trajs=list_,listname="chains",out="rg.dat",tensor=True) # argmument tensor enables calculations of gyration tensor out file is out+"tensor"
 
 # structure factor
 strfac=SMolSAT.structure_factor(system=ss,plane="xyz",max_length_scale=0,timescheme=0,trajs=list_,listname="all",out="strfac.dat")
@@ -72,3 +72,4 @@ list_.combine_multibody_lists(name="bonds",multibodies=multibodies)
 list_.combine_trajectories(name="bonds",trjs=multibodies)
 
 baf=SMolSAT.baf(system=ss,plane="xyz",trajs=list_,listname="bonds",out="baf.dat")
+"""
