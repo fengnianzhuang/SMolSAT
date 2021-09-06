@@ -17,8 +17,8 @@ Radius_Gyration::Radius_Gyration()
   n_times = 0;
 
    //allocate memory for mean square displacement data
-  baf = new float [n_times];
-  gyration_tensor = new sixfloat [n_times];
+  rg = new float [n_times];
+  gytensor = new sixfloat [n_times];
 
   weighting = new int [n_times];
 
@@ -36,29 +36,29 @@ Radius_Gyration::Radius_Gyration(const Radius_Gyration & copy)
   n_times = copy.n_times;
   atomcount = copy.atomcount;
 
-  baf = new float [n_times];
-  gyration_tensor = new sixfloat [n_times];
+  rg = new float [n_times];
+  gytensor = new sixfloat [n_times];
   weighting = new int [n_times];
 
   timetable = system->displacement_times();
 
   for(timeii=0;timeii<n_times;timeii++)
   {
-    baf[timeii]=copy.baf[timeii];
-    gyration_tensor[timeii][0] = copy.gyration_tensor[timeii][0];
-    gyration_tensor[timeii][1] = copy.gyration_tensor[timeii][1];
-    gyration_tensor[timeii][2] = copy.gyration_tensor[timeii][2];
-    gyration_tensor[timeii][3] = copy.gyration_tensor[timeii][3];
-    gyration_tensor[timeii][4] = copy.gyration_tensor[timeii][4];
-    gyration_tensor[timeii][5] = copy.gyration_tensor[timeii][5];
+    rg[timeii]=copy.rg[timeii];
+    gytensor[timeii][0] = copy.gytensor[timeii][0];
+    gytensor[timeii][1] = copy.gytensor[timeii][1];
+    gytensor[timeii][2] = copy.gytensor[timeii][2];
+    gytensor[timeii][3] = copy.gytensor[timeii][3];
+    gytensor[timeii][4] = copy.gytensor[timeii][4];
+    gytensor[timeii][5] = copy.gytensor[timeii][5];
     weighting[timeii]=copy.weighting[timeii];
   }
 }
 
 Radius_Gyration::~Radius_Gyration()
 {
-  delete [] baf;
-  delete [] gyration_tensor;
+  delete [] rg;
+  delete [] gytensor;
   delete [] weighting;
   delete [] timetable;
 }
@@ -73,20 +73,20 @@ Radius_Gyration::Radius_Gyration(std::shared_ptr<System> sys)
   n_times = system->show_n_timegaps();
 
    //allocate memory for mean square displacement data
-  baf = new float [n_times];
-  gyration_tensor = new sixfloat [n_times];
+  rg = new float [n_times];
+  gytensor = new sixfloat [n_times];
   weighting = new int [n_times];
 
   timetable = system->displacement_times();
   for(timeii=0;timeii<n_times;timeii++)
   {
-    baf[timeii]=0;
-    gyration_tensor[timeii][0]=0;
-    gyration_tensor[timeii][1]=0;
-    gyration_tensor[timeii][2]=0;
-    gyration_tensor[timeii][3]=0;
-    gyration_tensor[timeii][4]=0;
-    gyration_tensor[timeii][5]=0;
+    rg[timeii]=0;
+    gytensor[timeii][0]=0;
+    gytensor[timeii][1]=0;
+    gytensor[timeii][2]=0;
+    gytensor[timeii][3]=0;
+    gytensor[timeii][4]=0;
+    gytensor[timeii][5]=0;
     weighting[timeii]=0;
   }
   atomcount = 0;
@@ -107,25 +107,25 @@ Radius_Gyration Radius_Gyration::operator = (const Radius_Gyration & copy)
   n_times = copy.n_times;
   atomcount = copy.atomcount;
 
-  delete [] baf;
-  delete [] gyration_tensor;
+  delete [] rg;
+  delete [] gytensor;
   delete [] weighting;
 
-  baf = new float [n_times];
-  gyration_tensor = new sixfloat [n_times];
+  rg = new float [n_times];
+  gytensor = new sixfloat [n_times];
   weighting = new int [n_times];
 
   timetable = system->displacement_times();
 
   for(timeii=0;timeii<n_times;timeii++)
   {
-    baf[timeii]=copy.baf[timeii];
-    gyration_tensor[timeii][0] = copy.gyration_tensor[timeii][0];
-    gyration_tensor[timeii][1] = copy.gyration_tensor[timeii][1];
-    gyration_tensor[timeii][2] = copy.gyration_tensor[timeii][2];
-    gyration_tensor[timeii][3] = copy.gyration_tensor[timeii][3];
-    gyration_tensor[timeii][4] = copy.gyration_tensor[timeii][4];
-    gyration_tensor[timeii][5] = copy.gyration_tensor[timeii][5];
+    rg[timeii]=copy.rg[timeii];
+    gytensor[timeii][0] = copy.gytensor[timeii][0];
+    gytensor[timeii][1] = copy.gytensor[timeii][1];
+    gytensor[timeii][2] = copy.gytensor[timeii][2];
+    gytensor[timeii][3] = copy.gytensor[timeii][3];
+    gytensor[timeii][4] = copy.gytensor[timeii][4];
+    gytensor[timeii][5] = copy.gytensor[timeii][5];
     weighting[timeii]=copy.weighting[timeii];
   }
 
@@ -145,24 +145,24 @@ void Radius_Gyration::initialize(std::shared_ptr<System>  sys)
 
    //allocate memory for mean square displacement data
 
-  delete [] baf;
-  delete [] gyration_tensor;
+  delete [] rg;
+  delete [] gytensor;
   delete [] weighting;
 
-  baf = new float [n_times];
-  gyration_tensor = new sixfloat [n_times];
+  rg = new float [n_times];
+  gytensor = new sixfloat [n_times];
   weighting = new int [n_times];
 
   timetable = system->displacement_times();
   for(timeii=0;timeii<n_times;timeii++)
   {
-    baf[timeii]=0;
-    gyration_tensor[timeii][0]=0;
-    gyration_tensor[timeii][1]=0;
-    gyration_tensor[timeii][2]=0;
-    gyration_tensor[timeii][3]=0;
-    gyration_tensor[timeii][4]=0;
-    gyration_tensor[timeii][5]=0;
+    rg[timeii]=0;
+    gytensor[timeii][0]=0;
+    gytensor[timeii][1]=0;
+    gytensor[timeii][2]=0;
+    gytensor[timeii][3]=0;
+    gytensor[timeii][4]=0;
+    gytensor[timeii][5]=0;
     weighting[timeii]=0;
   }
   atomcount = 0;
@@ -186,7 +186,29 @@ void Radius_Gyration::analyze(Multibody_List * t_list)
 
 void Radius_Gyration::listkernel(Multibody* current_multibody, int timegapii,int thisii, int nextii)
 {
-  baf[thisii]+=current_multibody->square_gyration_radius(thisii);
+
+  sixfloat gytensor_this;
+
+  rg[thisii]+=current_multibody->square_gyration_radius(thisii);
+
+  trajectories=current_multibody->show_bodies();
+  int n_trajectories=trajectories.size();
+  coordinates = new Coordinate [n_trajectories];
+
+    for(int trajii=0;trajii<n_trajectories;trajii++)
+    {
+      coordinates[trajii]=trajectories[trajii]->show_unwrapped(thisii);
+	  //coordinates[trajii]=consistent_position(trajii,timeii);
+    }
+    gyration_tensor(coordinates, n_trajectories, gytensor_this);
+
+  gytensor[thisii][0]+=gytensor_this[0];
+  gytensor[thisii][1]+=gytensor_this[1];
+  gytensor[thisii][2]+=gytensor_this[2];
+  gytensor[thisii][3]+=gytensor_this[3];
+  gytensor[thisii][4]+=gytensor_this[4];
+  gytensor[thisii][5]+=gytensor_this[5];
+  // this is to calculate the centroid position of the multibody!!! This is not that correct for the atomic system
 }
 
 void Radius_Gyration::postprocess_list()
@@ -195,7 +217,13 @@ void Radius_Gyration::postprocess_list()
    for(int timeii=0;timeii<n_times;timeii++)
   {
 
-        baf[timeii] /= float(weighting[timeii]);
+        rg[timeii] /= float(weighting[timeii]);
+        gytensor[timeii][0]/=float(weighting[timeii]);
+        gytensor[timeii][1]/=float(weighting[timeii]);
+        gytensor[timeii][2]/=float(weighting[timeii]);
+        gytensor[timeii][3]/=float(weighting[timeii]);
+        gytensor[timeii][4]/=float(weighting[timeii]);
+        gytensor[timeii][5]/=float(weighting[timeii]);
 
   }
 }
@@ -211,7 +239,22 @@ void Radius_Gyration::write(string filename)const
   output << "Radius of gyration data created bys SMolDAT v." << VERSION << "\n";
   for(timeii=0;timeii<n_times;timeii++)
   {
-    output << timetable[timeii]<<"\t"<<baf[timeii]<<"\n";
+    output << timetable[timeii]<<"\t"<<rg[timeii]<<"\n";
+  }
+}
+
+void Radius_Gyration::write_tensor(string filename)const
+{
+  int timeii;
+
+  cout << "\nWriting gyration tensor to file "<<filename<<".";
+
+  ofstream output(filename.c_str());
+
+  output << "Gyration tensor data (xx xy xz yy yz zz) created bys SMolDAT v." << VERSION << "\n";
+  for(timeii=0;timeii<n_times;timeii++)
+  {
+    output << timetable[timeii]<<"\t"<<gytensor[timeii][0]<<"\t"<<gytensor[timeii][1]<<"\t"<<gytensor[timeii][2]<<"\t"<<gytensor[timeii][3]<<"\t"<<gytensor[timeii][4]<<"\t"<<gytensor[timeii][5]<<"\n";
   }
 }
 
@@ -224,7 +267,20 @@ void Radius_Gyration::write(ofstream& output)const
   output << "Radius of gyration data created bys SMolDAT v." << VERSION << "\n";
   for(timeii=0;timeii<n_times;timeii++)
   {
-    output << timetable[timeii]<<"\t"<<baf[timeii]<<"\n";
+    output << timetable[timeii]<<"\t"<<rg[timeii]<<"\n";
+  }
+}
+
+void Radius_Gyration::write_tensor(ofstream& output)const
+{
+  int timeii;
+
+  cout << "\nWriting gyration tensor  to file "<<".";
+
+  output << "Gyration tensor data (xx xy xz yy yz zz) created bys SMolDAT v." << VERSION << "\n";
+  for(timeii=0;timeii<n_times;timeii++)
+  {
+    output << timetable[timeii]<<"\t"<<gytensor[timeii][0]<<"\t"<<gytensor[timeii][1]<<"\t"<<gytensor[timeii][2]<<"\t"<<gytensor[timeii][3]<<"\t"<<gytensor[timeii][4]<<"\t"<<gytensor[timeii][5]<<"\n";
   }
 }
 
@@ -235,11 +291,11 @@ void Radius_Gyration::run(Trajectories trjs,string multibody_list_name)
   
   multibodylist = trjs.find_multibody_list(multibody_list_name);
 
-  cout << "\nCalculating bond autocorrelation function.\n";cout.flush();
+  cout << "\nCalculating radius of gyration.\n";cout.flush();
   start = time(NULL);
   analyze(multibodylist);
   finish = time(NULL);
-  cout << "\nCalculated bond autocorrelation function in " << finish-start<<" seconds."<<endl;
+  cout << "\nCalculated radius of gyration in " << finish-start<<" seconds."<<endl;
 }
 
 
@@ -251,5 +307,7 @@ void export_Radius_Gyration(py::module& m)
     .def("run",&Radius_Gyration::run)
     .def("write", static_cast<void (Radius_Gyration::*)(string )const> (&Radius_Gyration::write))
     .def("write", static_cast<void (Radius_Gyration::*)(ofstream& )const> (&Radius_Gyration::write))
+    .def("write_tensor", static_cast<void (Radius_Gyration::*)(string )const> (&Radius_Gyration::write_tensor))
+    .def("write_tensor", static_cast<void (Radius_Gyration::*)(ofstream& )const> (&Radius_Gyration::write_tensor))
     ;
     }

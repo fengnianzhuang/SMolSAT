@@ -10,18 +10,23 @@
 #include "multibody_analysis.h"
 #include "coordinate.h"
 #include "trajectories.h"
+#include "trajmath.h"
 
 using namespace std;
 
 class Radius_Gyration: public Multibody_Analysis
 {
     int n_times;
-    float * baf;
+    float * rg;
     int * weighting;
     float * timetable;
+
+    vector<Trajectory*> trajectories;
+    Coordinate * coordinates;
+    
     void initialize(std::shared_ptr<System>);
 
-    sixfloat * gyration_tensor;
+    sixfloat * gytensor;
 
     int atomcount;
     
@@ -50,6 +55,9 @@ class Radius_Gyration: public Multibody_Analysis
     
     void write(string) const;
     void write(ofstream&) const;
+
+    void write_tensor(string) const;
+    void write_tensor(ofstream&) const;
     
     void run(Trajectories trjs,string listname);
     //void bin_hook(Trajectory_List*,int,int,int);

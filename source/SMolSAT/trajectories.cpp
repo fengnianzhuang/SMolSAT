@@ -10,7 +10,6 @@ using namespace std;
 
 namespace py = pybind11;
 
-
 Trajectories::Trajectories(std::shared_ptr<System> sys)
 {
   analyte = sys;
@@ -376,6 +375,125 @@ void Trajectories::create_multibodies(string multibody_list_name, string traject
 
     new_trajectory_list->set(analyte,trajectory_set_pointer);
     add_trajectorylist(new_trajectory_list, trajectory_list_name);
+}
+
+void Trajectories::create_bin_list(string listname, int xbins, int ybins, int zbins)
+{
+  /** Creates new Binned Trajectory List Object
+  * @author Mark Mackura
+  * @date 4/11/2012
+  **/
+
+  cout << "\nCreating Binned Trajectory List for All Particles";
+
+  Trajectory_List_Bins * traj_list_bins;
+  Trajectory_List_Bins * trajectory_list_bins_pointer;
+  string type;
+  analyte->boxify();
+
+  traj_list_bins = new Trajectory_List_Bins(analyte, xbins, ybins, zbins); //creates Trajectory_List_Bins object
+
+  trajectory_list_bins_pointer = (Trajectory_List_Bins*)traj_list_bins;
+  add_trajectorylist_bins(trajectory_list_bins_pointer, listname);	//add trajectory list to array
+
+  cout<<"\nBinned Trajectory list "<<listname<<" created.";
+}
+
+void Trajectories::create_region_bin_list(string listname, int xbins, int ybins, int zbins, vector<float> x, vector<float> y, vector<float> z)
+{
+  /** Creates new Binned Trajectory List Object
+  * @author Mark Mackura
+  * @date 4/11/2012
+  **/
+
+  cout << "\nCreating Binned Trajectory List";
+  
+  Trajectory_List_Bins * traj_list_bins;
+  Trajectory_List_Bins * trajectory_list_bins_pointer;
+  analyte->boxify();
+
+  //creates Trajectory_List_Bins object for region bounded by dimensions given, if any are == 0 then box boundary is used
+  traj_list_bins = new Trajectory_List_Bins(analyte, xbins, ybins, zbins, x[0], x[1], y[0], y[1],z[0], z[1]);
+
+  trajectory_list_bins_pointer = (Trajectory_List_Bins*)traj_list_bins;
+  add_trajectorylist_bins(trajectory_list_bins_pointer, listname);	//add trajectory list to array
+
+  cout<<"\nBinned Trajectory list "<<listname<<" created.";
+}
+
+void Trajectories::create_distance_bin_list(string listname, float thickness,int n_bins,string list_to_bin_name, string clust_list_name)
+{
+  /** Creates new Binned Trajectory List Object
+  * @author Mark Mackura
+  * @date 4/11/2012
+  **/
+
+  cout << "\nCreating Binned Trajectory List";
+  Trajectory_List * list_to_bin;
+  Trajectory_List * clust_list;
+
+  Trajectory_List_Bins * traj_list_bins;
+  Trajectory_List_Bins * trajectory_list_bins_pointer;
+
+  analyte->boxify();
+
+  list_to_bin = find_trajectorylist(list_to_bin_name);
+  clust_list = find_trajectorylist(clust_list_name);
+  traj_list_bins = new Trajectory_List_Bins(analyte, thickness, n_bins, list_to_bin, clust_list); //creates Trajectory_List_Bins object
+  
+  trajectory_list_bins_pointer = (Trajectory_List_Bins*)traj_list_bins;
+  add_trajectorylist_bins(trajectory_list_bins_pointer, listname);	//add trajectory list to array
+
+  cout<<"\nBinned Trajectory list "<<listname<<" created.";
+}
+
+void Trajectories::create_distance_bin_list(string listname, float thickness,int n_bins,vector<float> point_pos,string list_to_bin_name)
+{
+  /** Creates new Binned Trajectory List Object
+  * @author Mark Mackura
+  * @date 4/11/2012
+  **/
+
+  cout << "\nCreating Binned Trajectory List";
+  Trajectory_List * list_to_bin;
+
+  Trajectory_List_Bins * traj_list_bins;
+  Trajectory_List_Bins * trajectory_list_bins_pointer;
+
+  analyte->boxify();
+
+  Coordinate point(point_pos[0],point_pos[1],point_pos[2]);
+  list_to_bin = find_trajectorylist(list_to_bin_name);
+  traj_list_bins = new Trajectory_List_Bins(analyte, thickness, n_bins, list_to_bin, point); //creates Trajectory_List_Bins object
+
+  trajectory_list_bins_pointer = (Trajectory_List_Bins*)traj_list_bins;
+  add_trajectorylist_bins(trajectory_list_bins_pointer, listname);	//add trajectory list to array
+
+  cout<<"\nBinned Trajectory list "<<listname<<" created.";
+}
+
+void Trajectories::create_distance_bin_list(string listname, string plane, float thickness,int n_bins,float plane_pos,string direction, string list_to_bin_name)
+{
+  /** Creates new Binned Trajectory List Object
+  * @author Mark Mackura
+  * @date 4/11/2012
+  **/
+
+  cout << "\nCreating Binned Trajectory List";
+  Trajectory_List * list_to_bin;
+
+  Trajectory_List_Bins * traj_list_bins;
+  Trajectory_List_Bins * trajectory_list_bins_pointer;
+
+  analyte->boxify();
+
+  list_to_bin = find_trajectorylist(list_to_bin_name);
+  traj_list_bins = new Trajectory_List_Bins(analyte, thickness, n_bins, list_to_bin, plane, plane_pos, direction); //creates Trajectory_List_Bins object
+
+  trajectory_list_bins_pointer = (Trajectory_List_Bins*)traj_list_bins;
+  add_trajectorylist_bins(trajectory_list_bins_pointer, listname);	//add trajectory list to array
+
+  cout<<"\nBinned Trajectory list "<<listname<<" created.";
 }
 
 

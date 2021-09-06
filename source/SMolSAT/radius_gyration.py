@@ -17,7 +17,7 @@ class rg2:
     def __init__(self,  system=None,
                         trajs=None,
                         listname=None,
-                        out=None):
+                        out=None,tensor=False):
         self.system=system
         self.trajs=trajs
         self.listname=listname
@@ -26,7 +26,11 @@ class rg2:
         self.analysis=Radius_Gyration(system)
         self.analysis.run(trajs,listname)
         self.analysis.write(out)
+        
         self.read()
+        if tensor:
+            self.analysis.write_tensor(out+"_tensor")
+            self.read_tensor()
 
     def get(self):
         return self.data[['rg']]
@@ -39,13 +43,10 @@ class rg2:
             lines = (line.strip() for line in f if len(line.strip().split())==2)
             self.data = np.loadtxt(lines, delimiter='\t',dtype={'names': ('t', 'rg'),'formats': ('f4','f4')})
 
-    def calc_gyration_rad_dist(self,out=None,n_bin=None,r_cut=None):
-        self.analysis.calc_gyration_rad_dist(n_bin,r_cut)
-        self.write_gyration_rad_dist(out)
-    
-    def calc_rel_asphericity_dist(self,out=None,n_bin=None):
-        self.analysis.calc_rel_asphericity_dist(n_bin)
-        self.write_rel_asphericity_dist(out)
+    def read_tensor(self):
+        with open(self.out+"_tensor") as f:
+            lines = (line.strip() for line in f if len(line.strip().split())==7)
+            self.tensor = np.loadtxt(lines, delimiter='\t',dtype={'names': ('t', 'xx', 'xy', 'xz', 'yy', 'yz', 'zz'),'formats': ('f4','f4','f4','f4','f4','f4','f4')})
 
     def plot(self,file=None):
         

@@ -64,8 +64,11 @@ class PYBIND11_EXPORT Trajectories
     void remove_bin_list(string listname);                  // Removes a bin list from memory
 
     void create_list(string listname, string args);
-    void create_bin_list(string listname, vector<int> n_bins);
-    void create_region_bin_list(string listname, vector<int> n_bins, vector<float> x, vector<float> y, vector<float> z);
+    void create_bin_list(string listname, int xbins, int ybins, int zbins);
+    void create_region_bin_list(string listname, int xbins, int ybins, int zbins, vector<float> x, vector<float> y, vector<float> z);
+    void create_distance_bin_list(string listname, float thickness,int n_bins,string list_to_bin, string clust_list);
+    void create_distance_bin_list(string listname, float thickness,int n_bins,vector<float> point_pos,string list_to_bin);
+    void create_distance_bin_list(string listname, string plane, float thickness,int n_bins,float plane_pos,string direction, string list_to_bin);
     void create_multibodies(string listname, string trajectory_type_name, string centertypename, string args);
 };
 
