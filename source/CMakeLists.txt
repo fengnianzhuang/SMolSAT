@@ -70,6 +70,7 @@ set(_pmdat_sources ./SMolSAT/coordinate.cpp
                     ./SMolSAT/van_hove_distinct.cpp
                     ./SMolSAT/mean_square_distance.cpp
                     ./SMolSAT/mean_distance.cpp
+                    ./SMolSAT/radius_gyration.cpp
                     ./SMolSAT/pmdat.cpp)
 
 # set header files
@@ -111,7 +112,8 @@ set(_pmdat_headers ./SMolSAT/coordinate.h
                     ./SMolSAT/van_hove_self.h
                     ./SMolSAT/van_hove_distinct.h
                     ./SMolSAT/mean_square_distance.h
-                    ./SMolSAT/mean_distance.cpp
+                    ./SMolSAT/mean_distance.h
+                    ./SMolSAT/radius_gyration.h
                     ./SMolSAT/xdrfile.h
                     ./SMolSAT/xdrfile_xtc.h
                     )
