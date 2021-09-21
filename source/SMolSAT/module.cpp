@@ -30,6 +30,7 @@
 #include "mean_square_distance.h"
 #include "mean_distance.h"
 #include "radius_gyration.h"
+#include "mean_square_displacement_2d.h"
 
 #include "../extern/pybind11/include/pybind11/pybind11.h"
 #include "../extern/pybind11/include/pybind11/stl_bind.h"
@@ -69,4 +70,5 @@ PYBIND11_MODULE(_SMolSAT, m)
     export_MeanSquared_Distance(m);
     export_Mean_Distance(m);
     export_Radius_Gyration(m);
+    export_Mean_Square_Displacement_2D(m);
 }

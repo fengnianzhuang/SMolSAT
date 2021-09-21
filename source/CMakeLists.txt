@@ -71,6 +71,7 @@ set(_pmdat_sources ./SMolSAT/coordinate.cpp
                     ./SMolSAT/mean_square_distance.cpp
                     ./SMolSAT/mean_distance.cpp
                     ./SMolSAT/radius_gyration.cpp
+                    ./SMolSAT/mean_square_displacement_2d.cpp
                     ./SMolSAT/pmdat.cpp)
 
 # set header files
@@ -114,6 +115,7 @@ set(_pmdat_headers ./SMolSAT/coordinate.h
                     ./SMolSAT/mean_square_distance.h
                     ./SMolSAT/mean_distance.h
                     ./SMolSAT/radius_gyration.h
+                    ./SMolSAT/mean_square_displacement_2d.h
                     ./SMolSAT/xdrfile.h
                     ./SMolSAT/xdrfile_xtc.h
                     )
