@@ -49,6 +49,9 @@ end2end_distance=SMolSAT.mean_distance(system=ss,trajs=list_,listname1="head_ato
 
 # mean square displacement of segments
 msd=SMolSAT.msd(system=ss,trajs=list_,listname="all",out="msd_all.dat")
+msd_xy=SMolSAT.msd2d(system=ss,trajs=list_,listname="all",out="msd_xy.dat",plane="xy")
+msd_yz=SMolSAT.msd2d(system=ss,trajs=list_,listname="all",out="msd_yz.dat",plane="yz")
+msd_xz=SMolSAT.msd2d(system=ss,trajs=list_,listname="all",out="msd_xz.dat",plane="xz")
 
 # mean square displacement of chain center-of-mass
 # create particle trajectory for all monomers by combining atoms using geometric centroid method
@@ -72,4 +75,8 @@ list_.combine_multibody_lists(name="bonds",multibodies=multibodies)
 list_.combine_trajectories(name="bonds",trjs=multibodies)
 
 baf=SMolSAT.baf(system=ss,plane="xyz",trajs=list_,listname="bonds",out="baf.dat")
-"""
+
+# end-to-end vector autocorrelation function
+# the end-to-end vector is defined as the vector between the first and end beads of a single polymer chain
+list_.create_multibodies(name="e2e",trj_list_name="e2e",center_type="centroid", args="species_atomlist polymer 1 0 1 19")
+baf=SMolSAT.baf(system=ss,plane="xyz",trajs=list_,listname="e2e",out="e2e_acf.dat")
