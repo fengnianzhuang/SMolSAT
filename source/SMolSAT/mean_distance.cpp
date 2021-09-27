@@ -106,7 +106,7 @@ void Mean_Distance::listkernel2(Trajectory* traj1, Trajectory* traj2,int timegap
     {
     if(traj1!=traj2)
     {
-    distance=(traj2->show_coordinate(thisii)-(traj1->show_coordinate(thisii))).length_unwrapped(system->size());	//calculate shortest distance between two coordinates, taking into account periodic boundaries
+    distance=(traj2->show_unwrapped(thisii)-(traj1->show_unwrapped(thisii))).length();	//calculate shortest distance between two coordinates, taking into account periodic boundaries
     time_m_sqr_dist[thisii]+=distance;
     weighting[thisii]+=1;
     }
@@ -114,7 +114,7 @@ void Mean_Distance::listkernel2(Trajectory* traj1, Trajectory* traj2,int timegap
   }else{
     if(traj1!=traj2)
     {
-    distance=(traj2->show_coordinate(thisii)-(traj1->show_coordinate(thisii))).length_unwrapped(system->size());	//calculate shortest distance between two coordinates, taking into account periodic boundaries
+    distance=(traj2->show_unwrapped(thisii)-(traj1->show_unwrapped(thisii))).length();	//calculate shortest distance between two coordinates, taking into account periodic boundaries
     time_m_sqr_dist[thisii]+=distance;
     weighting[thisii]+=1;
     }

@@ -11,35 +11,42 @@
 
 using namespace std;
 
-class MeanSquared_Distance: public Analysis_Base
+class MeanSquared_Distance: public Analysis_Onetime
 {
-    float max_distance;
-    int n_bins;
-    float bin_size;
-    int n_times;
     float * time_m_sqr_dist;
     int * weighting;
+
+    int n_times;
+    float ** time_rdf;
     int * n_atoms_i;
     int * n_atoms_j;
-    bool in_mole;
+    bool is_inter;
     
   public:
     MeanSquared_Distance();			//default constructor    
     MeanSquared_Distance(const MeanSquared_Distance &);		//copy constructor
-    MeanSquared_Distance(std::shared_ptr<System> sys, bool in_mole=0);
+    MeanSquared_Distance(std::shared_ptr<System> sys, bool is_inter=0);
     
-    Analysis_Type what_are_you(){Analysis_Type type = mean_square_distance; return type;};		//virtual method to report the type of analysis
-
-    void analyze (Trajectory_List*, Trajectory_List*);
-
-    void listkernel(Trajectory* , int timegapii, int thisii, int nextii);
-    void listkernel2(Trajectory* , Trajectory* ,int timegapii,int thisii, int nextii);
-
+    MeanSquared_Distance operator = (const MeanSquared_Distance &);	//assignment
+    
+    //MeanSquared_Distance operator+ (const MeanSquared_Distance &);
+    
+    void set(std::shared_ptr<System> sys);
+    
+    Analysis_Type what_are_you(){Analysis_Type type = radial_distribution_function; return type;};		//virtual method to report the type of analysis
+    
+    void preprocess(){trajectory_list2=trajectory_list;};
+    void timekernel(int timeii){timekernel2(timeii);};
+    void timekernel2(int timeii);
+    void listkernel(Trajectory *, int, int, int);
+    void listkernel2(Trajectory *, Trajectory *, int, int, int);
     void postprocess_list();
+    void bin(int, float);
     
     void write(string);
     void write(ofstream& output);
     
+    void run(Trajectories trjs,string listname);
     void run(Trajectories trjs,string listname1,string listname2);
     
 //	bool isThreadSafe(){return true;};
